@@ -28,7 +28,7 @@
     "art": "node scripts/generate-art.js",
     "start": "electron .",
     "dev": "electron . --dev",
-    "test": "node --test test/",
+    "test": "node scripts/run-tests.js",
     "smoke": "node scripts/smoke.js",
     "dist:win": "electron-builder --publish never --win zip --x64",
     "dist:win:full": "electron-builder --publish never --win zip portable --x64",
