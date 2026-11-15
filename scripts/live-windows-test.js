@@ -144,6 +144,10 @@ function verifyPass(pass, decision, problems) {
   }
 
   const report = result.report;
+  const liveTypes = new Set(result.eventTypes || []);
+  for (const required of ['report.saved', 'job.done']) {
+    assert(liveTypes.has(required), `${decision}: live event stream is missing ${required}`, problems);
+  }
   assert(report && Array.isArray(report.reports) && report.reports.length === 3, `${decision}: report bundle did not contain three files`, problems);
   if (report && Array.isArray(report.reports)) {
     const expectedDir = path.resolve(usbDir, 'reports');
@@ -168,7 +172,10 @@ function verifyPass(pass, decision, problems) {
           assert(['pass', 'info', 'warn', 'fail', 'error', 'skip'].includes(entry.status), `${decision}: invalid check status ${entry.status} for ${entry.id}`, problems);
         }
         const types = new Set((payload.events || []).map((event) => event.type));
-        for (const required of ['job.start', 'handoff', 'scan.done', 'repair.proposed', 'repair.decision', 'repair.done', 'report.saved', 'job.done']) {
+        // The report is written before its own save event can exist, so the
+        // persisted timeline ends at repair.done/workflow.state. The terminal
+        // report.saved and job.done events are verified from the live bus below.
+        for (const required of ['job.start', 'handoff', 'scan.done', 'repair.proposed', 'repair.decision', 'repair.done']) {
           assert(types.has(required), `${decision}: event timeline is missing ${required}`, problems);
         }
       }

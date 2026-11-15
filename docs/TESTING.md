@@ -68,7 +68,10 @@ The live test validates:
 - decline recorded; repair outcome is `declined` and no action ran
 - HTML/TXT/JSON reports exist under the USB folder's `reports/`
 - report JSON marks `job.simulated: false`, names a Windows OS, includes every
-  check status from the allowed set, and contains the required event types
+  check status from the allowed set, and contains the event types recorded before
+  the report was written. `report.saved` and `job.done` are validated from the
+  live event bus, because a report cannot contain the event announcing its own
+  save.
 
 ### Windows test limitations
 
