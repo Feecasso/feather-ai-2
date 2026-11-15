@@ -29,3 +29,10 @@ Offline, USB-first Windows diagnostics with a three-agent pixel-art lab.
 - No network, API key, or local model is used at any point.
 
 See `README.md`, `docs/QUICKSTART.md`, and `docs/TESTING.md` for details.
+
+## Verified by
+
+- CI (unit/contract tests and simulated Electron approve/decline):
+  https://github.com/Feecasso/feather-ai-2/actions/runs/43676192260
+- Windows acceptance (real Windows adapter, approve, decline, USB report):
+  https://github.com/Feecasso/feather-ai-2/actions/runs/43676192629

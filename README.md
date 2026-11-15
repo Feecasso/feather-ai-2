@@ -18,6 +18,16 @@ lab coats work at separate stations:
 
 ![Original agent sprite sheet](assets/preview-agents.png)
 
+## Download
+
+Download the release from
+[Feecasso/feather-ai-2 releases](https://github.com/Feecasso/feather-ai-2/releases/tag/v2.0.0).
+Use `FeatherAI-2.0.0-Windows-x64-usb.zip` for a ready-to-copy USB folder, or
+`FeatherAI-2.0.0-Windows-x64.zip` for the plain application folder. Both contain
+`FeatherAI.exe`; Electron needs the adjacent `resources` folder, so keep the
+extracted layout together. Compare the download with `SHA256SUMS.txt` before
+running it.
+
 ## The workflow
 
 1. **Lead** creates a job and hands a checklist to Scanner.
@@ -122,6 +132,11 @@ node scripts/live-windows-test.js --app-dir release/win-unpacked --usb-dir "$env
 
 The GitHub Actions `Windows acceptance` workflow runs that test on
 `windows-latest` and uploads the screenshots, result JSON, and reports.
+
+Verification for the 2.0.0 code line:
+
+- [CI: unit/contract tests plus both simulated Electron smoke paths](https://github.com/Feecasso/feather-ai-2/actions/runs/43676192260)
+- [Windows acceptance: real Windows scan, approve, decline, and USB report](https://github.com/Feecasso/feather-ai-2/actions/runs/43676192629)
 
 ## Offline and privacy guarantees
 
