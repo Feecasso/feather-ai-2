@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit tests and simulated UI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit and contract tests
+        run: npm test
+      - name: Verify generated artwork is current
+        run: |
+          npm run art
+          git diff --exit-code -- assets build
+      - name: Install virtual display
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+      - name: Smoke test approval path
+        env:
+          FEATHER_SMOKE_DECISION: approve
+        run: xvfb-run -a npm run smoke
+      - name: Smoke test decline path
+        env:
+          FEATHER_SMOKE_DECISION: decline
+        run: xvfb-run -a npm run smoke
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-smoke-evidence
+          path: smoke/
+          if-no-files-found: warn
+          retention-days: 14

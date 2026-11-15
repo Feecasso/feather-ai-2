@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Feather AI 2.0</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header id="titlebar" class="titlebar">
+      <div class="brand-block">
+        <img src="../../assets/icon-256.png" width="26" height="26" alt="" class="brand-icon">
+        <div class="brand-text">
+          <div class="brand-name">FEATHER<span>AI</span></div>
+          <div class="brand-sub">V2.0 // USB REPAIR STATION</div>
+        </div>
+      </div>
+      <div class="title-center">
+        <span class="signal-dot"></span>
+        <span id="offline-label">OFFLINE / LOCAL ONLY</span>
+        <span class="sep">|</span>
+        <span id="platform-label">WINDOWS READ-ONLY SCANNER</span>
+      </div>
+      <div class="title-right">
+        <div class="usb-pill" id="usb-pill" title="Report destination">
+          <span class="usb-icon">▣</span>
+          <span id="usb-label">USB …</span>
+        </div>
+        <div class="window-controls">
+          <button id="btn-min" class="win-btn" aria-label="Minimize">—</button>
+          <button id="btn-max" class="win-btn" aria-label="Maximize">□</button>
+          <button id="btn-close" class="win-btn close" aria-label="Close">×</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="stage">
+        <div class="stage-head">
+          <div>
+            <div class="eyebrow">MISSION CONTROL / FEATHER LAB</div>
+            <h1>Three agents. One repair job.</h1>
+            <div class="stage-sub" id="stage-sub">Lead opens the job. Scanner reads. Repair waits for your approval. <span id="sim-badge" class="sim-badge" hidden>SIMULATED PLATFORM</span></div>
+          </div>
+          <div class="stage-actions">
+            <div class="phase-box">
+              <span class="eyebrow">PHASE</span>
+              <strong id="phase-label">IDLE</strong>
+            </div>
+            <button id="btn-start" class="pixel-btn primary">▶ START PROCESS</button>
+          </div>
+        </div>
+
+        <div class="lab-frame" id="lab-frame">
+          <canvas id="lab" width="960" height="500" aria-label="Pixel-art lab with Lead, Scanner, and Repair at their workstations"></canvas>
+          <div class="crt" aria-hidden="true"></div>
+          <div class="lab-topline">
+            <span class="lab-chip">SECTOR 02 // DIAGNOSTICS</span>
+            <span class="lab-chip" id="job-chip">JOB —</span>
+            <span class="lab-chip right" id="scan-chip">SCAN 0/0</span>
+          </div>
+          <div class="agent-hud" data-agent="lead" style="--x:17%">
+            <span class="hud-led"></span>
+            <div>
+              <div class="hud-name">LEAD</div>
+              <div class="hud-status" id="status-lead">IDLE</div>
+            </div>
+          </div>
+          <div class="agent-hud" data-agent="scanner" style="--x:50%">
+            <span class="hud-led"></span>
+            <div>
+              <div class="hud-name">SCANNER</div>
+              <div class="hud-status" id="status-scanner">IDLE</div>
+            </div>
+          </div>
+          <div class="agent-hud" data-agent="repair" style="--x:83%">
+            <span class="hud-led"></span>
+            <div>
+              <div class="hud-name">REPAIR</div>
+              <div class="hud-status" id="status-repair">IDLE</div>
+            </div>
+          </div>
+          <div class="lab-bottomline">
+            <span><span class="live-dot"></span> LIVE WORKFLOW EVENTS</span>
+            <span id="lab-message">SYSTEM READY</span>
+          </div>
+        </div>
+
+        <div class="results-panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">SCANNER OUTPUT / READ-ONLY</div>
+              <h2>Diagnostic results <span id="result-count" class="count-pill">0/0</span></h2>
+            </div>
+            <div class="summary-chips" id="summary-chips">
+              <span class="chip muted" data-chip="pass">PASS 0</span>
+              <span class="chip warn" data-chip="warn">WARN 0</span>
+              <span class="chip bad" data-chip="fail">FAIL 0</span>
+              <span class="chip bad" data-chip="error">ERROR 0</span>
+              <span class="chip skip" data-chip="skip">UNAVAILABLE 0</span>
+            </div>
+          </div>
+          <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+          <div id="checks" class="checks"></div>
+          <div class="empty-hint" id="checks-empty">Start the process to let Scanner read this computer. Failed and unavailable checks will be shown as measured — never as passes.</div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="activity-panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">EVENT BUS / LIVE</div>
+              <h2>Activity</h2>
+            </div>
+            <span class="count-pill" id="activity-count">0</span>
+          </div>
+          <div id="activity" class="activity" aria-live="polite">
+            <div class="activity-empty">
+              <div class="idle-glyph">⌁</div>
+              <p>No workflow events yet.</p>
+              <p class="dim">Lead, Scanner, and Repair will report here from the real job bus.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="repair-card" id="repair-card" data-state="idle">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">REPAIR GATE</div>
+              <h2>Proposed fix</h2>
+            </div>
+            <span class="gate-badge" id="gate-badge">LOCKED</span>
+          </div>
+          <div id="repair-body" class="repair-body">
+            <div class="idle-glyph small">▣</div>
+            <p class="repair-idle">Repair cannot act yet. Scanner must finish a read-only pass first. Any proposed fix stays behind <strong>Review fix</strong>.</p>
+          </div>
+        </section>
+
+        <section class="report-card">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow">USB / WRITE-ONLY OUTPUT</div>
+              <h2>Report</h2>
+            </div>
+            <button id="btn-reports" class="mini-btn" title="Open the reports folder">OPEN FOLDER</button>
+          </div>
+          <div class="report-row">
+            <div class="report-icon">▤</div>
+            <div class="report-meta">
+              <div id="report-status">No report written yet.</div>
+              <div id="report-path" class="path">—</div>
+            </div>
+          </div>
+          <div id="report-warning" class="report-warning" hidden></div>
+          <div id="report-files" class="report-files"></div>
+          <div class="session-line">
+            <span>MACHINE</span>
+            <strong id="machine-label">—</strong>
+          </div>
+          <div class="session-line">
+            <span>MODE</span>
+            <strong id="mode-label">OFFLINE / LOCAL ONLY</strong>
+          </div>
+          <div class="session-line">
+            <span>VERSION</span>
+            <strong id="version-label">2.0.0</strong>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="statusbar">
+      <span id="status-left" class="status-left">READY // NOTHING IS CHANGED UNTIL YOU APPROVE A SPECIFIC FIX</span>
+      <span id="status-right" class="status-right">FEATHER AI 2.0 // NO TELEMETRY // NO API KEY</span>
+    </footer>
+  </div>
+  <script src="lab.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

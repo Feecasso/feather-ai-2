@@ -1,0 +1,8 @@
+node_modules/
+release/
+usb/
+smoke/
+*.log
+*.png.tmp
+.DS_Store
+Thumbs.db

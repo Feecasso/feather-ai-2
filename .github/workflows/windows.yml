@@ -1,0 +1,96 @@
+name: Windows acceptance
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Real Windows scan, approval, decline, and report
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit and contract tests
+        run: npm test
+      - name: Verify generated artwork is current
+        run: |
+          npm run art
+          git diff --exit-code -- assets build
+      - name: Build Windows x64 package
+        run: npm run dist:win
+      - name: Verify packaged executable
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "release/win-unpacked/FeatherAI.exe")) {
+            throw "FeatherAI.exe was not produced by electron-builder"
+          }
+          Get-Item "release/win-unpacked/FeatherAI.exe" | Format-List Name, Length, VersionInfo
+      - name: Run packaged app from removable-drive substitute
+        shell: pwsh
+        env:
+          FEATHER_LIVE_TIMEOUT_MS: '900000'
+        run: |
+          $usb = Join-Path $env:RUNNER_TEMP 'FeatherUSB'
+          node scripts/live-windows-test.js --app-dir release/win-unpacked --usb-dir $usb
+      - name: Assemble USB layout
+        run: npm run usb:win
+      - name: Package USB layout and checksums
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $usbFolder = "usb/FeatherAI-$version-Windows-x64"
+          if (-not (Test-Path $usbFolder)) { throw "USB layout folder is missing: $usbFolder" }
+          Compress-Archive -Path $usbFolder -DestinationPath "release/FeatherAI-$version-Windows-x64-usb.zip" -Force
+          Get-ChildItem release/*.zip | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)"
+          } | Set-Content release/SHA256SUMS.txt -Encoding ascii
+          Get-Content release/SHA256SUMS.txt
+      - name: Upload Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-acceptance-evidence
+          path: |
+            ${{ runner.temp }}/FeatherUSB/smoke
+            ${{ runner.temp }}/FeatherUSB/reports
+            release/win-unpacked/resources/feather-build.json
+            release/SHA256SUMS.txt
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: FeatherAI-Windows-x64
+          path: |
+            release/FeatherAI-*-Windows-x64.zip
+            release/FeatherAI-*-Windows-x64-usb.zip
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $assets = @(Get-ChildItem release/FeatherAI-*-Windows-x64.zip, release/FeatherAI-*-Windows-x64-usb.zip) + @(Get-Item release/SHA256SUMS.txt)
+          $assetPaths = $assets | ForEach-Object { $_.FullName }
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @assetPaths --clobber
+          } else {
+            gh release create $tag @assetPaths --title "Feather AI 2.0 $tag" --notes-file docs/RELEASE_NOTES.md
+          }

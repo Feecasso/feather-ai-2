@@ -1,0 +1,86 @@
+{
+  "name": "feather-ai-2",
+  "productName": "FeatherAI",
+  "version": "2.0.0",
+  "description": "Feather AI 2.0 - Windows-first, offline USB diagnostic and repair workflow with a three-agent pixel lab.",
+  "main": "src/main/main.js",
+  "author": "Feecasso",
+  "license": "MIT",
+  "private": false,
+  "homepage": "https://github.com/Feecasso/feather-ai-2#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Feecasso/feather-ai-2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Feecasso/feather-ai-2/issues"
+  },
+  "keywords": [
+    "offline",
+    "windows",
+    "usb",
+    "diagnostics",
+    "repair",
+    "electron",
+    "pixel-art"
+  ],
+  "scripts": {
+    "art": "node scripts/generate-art.js",
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test test/",
+    "smoke": "node scripts/smoke.js",
+    "dist:win": "electron-builder --publish never --win zip --x64",
+    "dist:win:full": "electron-builder --publish never --win zip portable --x64",
+    "dist:linux": "electron-builder --publish never --linux dir --x64",
+    "usb:win": "node scripts/make_usb.js win"
+  },
+  "devDependencies": {
+    "electron": "^45.3.0",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "org.feecasso.featherai2",
+    "productName": "FeatherAI",
+    "copyright": "Copyright (c) 2026 Feecasso",
+    "asar": true,
+    "compression": "normal",
+    "afterPack": "scripts/afterPack.js",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "README.md",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "docs",
+        "to": "docs"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "FeatherAI-${version}-Windows-x64.${ext}",
+      "requestedExecutionLevel": "asInvoker",
+      "executableName": "FeatherAI"
+    },
+    "portable": {
+      "artifactName": "FeatherAI-${version}-Windows-x64-portable.${ext}",
+      "requestExecutionLevel": "user"
+    }
+  }
+}
